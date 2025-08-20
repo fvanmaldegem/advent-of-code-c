@@ -1,0 +1,34 @@
+{
+    "configurations": [
+        {
+            "name": "Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${fileDirnameBasename}_${fileBasenameNoExtension}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {"name": "SESSION_COOKIE", "value": "${input:SESSION_COOKIE}"}
+            ],
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build (debug)"
+        }
+        
+    ],
+    "inputs": [
+        {
+            "id": "SESSION_COOKIE",
+            "type": "promptString",
+            "description": "The session token of your AdventOfCode"
+
+        }
+    ]
+}

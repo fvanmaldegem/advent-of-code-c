@@ -1,0 +1,5 @@
+build
+.env.local
+compile_commands.json
+.cache
+.vscode/settings
