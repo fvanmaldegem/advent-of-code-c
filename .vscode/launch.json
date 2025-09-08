@@ -19,7 +19,12 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "build (debug)"
+            "preLaunchTask": "build (debug)",
+            "symbolLoadInfo": {
+                "loadAll": true,
+                "exceptionList": ""
+            },
+            "sourceFileMap": {"/home/fvanmaldegem/code/github.com/fvanmaldegem": "/home/fvanmaldegem/code/personal"}
         }
         
     ],

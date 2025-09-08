@@ -6,12 +6,16 @@
 #include <curl/header.h>
 #include <time.h>
 #include <stdarg.h>
+#include <unistd.h>
+#include <linux/limits.h>
+#include <wchar.h>
+#include <assert.h>
 
 #include "list.h"
 #include "str.h"
 
-const char* AOC_URL          = "https://adventofcode.com";
-const char* INPUT_URL_FORMAT = "%s/%d/day/%d/input";
+const char *AOC_URL          = "https://adventofcode.com";
+const char *INPUT_URL_FORMAT = "%s/%d/day/%d/input";
 
 struct MemoryStruct {
     char *memory;
@@ -53,7 +57,7 @@ void panic(int exit_code, char* message) {
     exit(exit_code);
 }
 
-char* get_token() {
+char *get_token() {
     char* token = getenv("SESSION_COOKIE");
     if (token == NULL) {
         return "";
@@ -62,7 +66,7 @@ char* get_token() {
     return token;
 }
 
-char* get_input_url(int year, int day) {
+char *get_input_url(int year, int day) {
     char *url = malloc(sizeof(char) * 300);
     int result = sprintf(url, INPUT_URL_FORMAT, AOC_URL, year, day);
     if (result == 0) {
@@ -72,9 +76,8 @@ char* get_input_url(int year, int day) {
     return url;
 }
 
-char* get_input(int year, int day) {
+char *get_input_online(char *token, int year, int day) {
     char* url = get_input_url(year, day);
-    char* token = get_token();
     char* token_cookie = malloc(sizeof(char) * 300);
     
     CURL *curl_handle;
@@ -112,6 +115,52 @@ char* get_input(int year, int day) {
     return chunk.memory;
 }
 
+char *get_input_local(int year, int day) {
+    FILE *fptr;
+    char cwd[PATH_MAX];
+    char input_file[PATH_MAX];
+    char daystr[3];
+
+    struct MemoryStruct chunk;
+    chunk.memory = malloc(1);
+    chunk.size = 0;
+
+    size_t buffsize = sizeof(char) * 1000;
+    char *buff = malloc(buffsize + 1);
+
+    if (day < 10) {
+        sprintf(daystr, "0%d", day);
+    } else {
+        sprintf(daystr, "%d", day);
+    }
+
+    getcwd(cwd, sizeof(cwd));
+    sprintf(input_file, "%s/test/%d/%s/input.txt", cwd, year, daystr);
+
+    fptr = fopen(input_file, "r");
+    while (fread(buff, sizeof(char), buffsize, fptr)) {
+        WriteMemoryCallback(buff, sizeof(char), buffsize / sizeof(char), &chunk);
+    }
+
+    fclose(fptr);
+    free(buff);
+
+    return chunk.memory;
+}
+
+char *get_input(int year, int day) {
+    char *result = NULL;
+
+    char *token = get_token();
+    if (strcmp(token, "") == 0) {
+        result = get_input_local(year, day);
+    } else {
+        result = get_input_online(token, year, day);
+    }
+
+    return result;
+}
+
 void parse_int_columns(char *text, int columns, ...) {
     va_list args;
     va_start(args, columns);
@@ -126,10 +175,22 @@ void parse_int_columns(char *text, int columns, ...) {
 
     t_list *lines = str_split(text, '\n');
     for(int i = 0; i < lines->len; i++) {
-        const char* cur_line = (char*) list_get_by_index(lines, i)->data;
+        const char *cur_line = (char*) list_get_by_index(lines, i)->data;
+
         t_list *line_columns = str_split(cur_line, ' ');
 
-        for (int j = 0; j < columns; j++) {
+        if (line_columns->len < columns) {
+            list_free(&line_columns, free);
+            continue;
+        }
+
+        for (int j = 0; j < line_columns->len; j++) {
+            t_node *node = list_get_by_index(line_columns, j);
+            
+            if (node == NULL) {
+                continue;
+            }
+
             int intv  = atoi(list_get_by_index(line_columns, j)->data);
             int *intp = malloc(sizeof(int));
             memcpy(intp, &intv, sizeof(int));
@@ -141,4 +202,35 @@ void parse_int_columns(char *text, int columns, ...) {
 
     list_free(&lines, free);
     list_free(&lists, 0);
+}
+
+t_list *parse_int_matrix(char *text) {
+    t_list *matrix = list_allocate(sizeof(t_list));
+    t_list *lines = str_split(text, '\n');
+    for(int i = 0; i < lines->len; i++) {
+        const char *cur_line = (char*) list_get_by_index(lines, i)->data;
+
+        t_list *line_columns = str_split(cur_line, ' ');
+        t_list *row = list_allocate(sizeof(int));
+
+        for (int j = 0; j < line_columns->len; j++) {
+            t_node *node = list_get_by_index(line_columns, j);
+            
+            if (node == NULL) {
+                continue;
+            }
+
+            int intv  = atoi(list_get_by_index(line_columns, j)->data);
+            int *intp = malloc(sizeof(int));
+            memcpy(intp, &intv, sizeof(int));
+            list_append(row, intp);
+        }
+
+        list_free(&line_columns, free);
+        list_append(matrix, row);
+    }
+
+    list_free(&lines, free);
+
+    return matrix;
 }

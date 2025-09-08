@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdio.h>
+#include "list.h"
 
 char* get_input(int year, int day);
 
@@ -13,3 +13,4 @@ int columns: the amount of columns
 the remaing parameters are of the type 't_list*' and will store the values of the columns.
 */
 void parse_int_columns(char *text, int columns, ...);
+t_list *parse_int_matrix(char *text);

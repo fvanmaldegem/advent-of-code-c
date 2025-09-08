@@ -14,7 +14,7 @@ t_node *__node_allocate(void *data) {
     return allocated_node;
 }
 
-void __node_free(t_node *node, void (*data_free)(void *)) {
+void node_free(t_node *node, void (*data_free)(void *)) {
     if (data_free) {
         data_free(node->data);
         node->data = NULL;
@@ -132,7 +132,7 @@ void *list_remove_by_index(t_list *list, size_t i) {
             cur_node->prev = NULL;
 
             list->len--;
-            __node_free(cur_node, 0);
+            node_free(cur_node, 0);
             break;
         }
 
@@ -146,12 +146,29 @@ void *list_pop(t_list *list) {
     return list_remove_by_index(list, 0);
 }
 
+t_list *list_clone(t_list *src, bool with_nodes) {
+    t_list *target = list_allocate(src->data_size); 
+
+    if (!with_nodes) {
+        return memcpy(target, src, sizeof(t_list));
+    }
+
+    for (int i = 0; i < src->len; i++) {
+        t_node *old_node = list_get_by_index(src, i);
+        void *pdata = malloc(sizeof(src->data_size));
+        memcpy(pdata, old_node->data, src->data_size);
+        list_append(target, pdata);
+    }
+
+    return target;
+}
+
 void list_free(t_list **list, void (*data_free)(void *)) {
     t_node *node = (*list)->head;
 
     for (size_t i = 0; i < (*list)->len; i++) {
         t_node *next = node->next;
-        __node_free(node, data_free);
+        node_free(node, data_free);
         node = next;
     }
 
