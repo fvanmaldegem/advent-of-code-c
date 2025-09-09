@@ -115,7 +115,7 @@ char *get_input_online(char *token, int year, int day) {
     return chunk.memory;
 }
 
-char *get_input_local(int year, int day) {
+char *get_input_local(int year, int day, int optional) {
     FILE *fptr;
     char cwd[PATH_MAX];
     char input_file[PATH_MAX];
@@ -135,7 +135,12 @@ char *get_input_local(int year, int day) {
     }
 
     getcwd(cwd, sizeof(cwd));
-    sprintf(input_file, "%s/test/%d/%s/input.txt", cwd, year, daystr);
+    if (optional > 0) {
+        sprintf(input_file, "%s/test/%d/%s/input_%d.txt", cwd, year, daystr, optional);
+    } else {
+        sprintf(input_file, "%s/test/%d/%s/input.txt", cwd, year, daystr);
+    }
+    
 
     fptr = fopen(input_file, "r");
     while (fread(buff, sizeof(char), buffsize, fptr)) {
@@ -148,12 +153,12 @@ char *get_input_local(int year, int day) {
     return chunk.memory;
 }
 
-char *get_input(int year, int day) {
+char *get_input(int year, int day, int optional) {
     char *result = NULL;
 
     char *token = get_token();
     if (strcmp(token, "") == 0) {
-        result = get_input_local(year, day);
+        result = get_input_local(year, day, optional);
     } else {
         result = get_input_online(token, year, day);
     }

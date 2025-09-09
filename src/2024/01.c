@@ -81,7 +81,7 @@ int solve2(char *input) {
 }
 
 int main() {
-    char *input = get_input(2024, 1);
+    char *input = get_input(2024, 1, 0);
     printf("answer 1: %d\n", solve1(input));
     printf("answer 2: %d\n", solve2(input));
     free(input);

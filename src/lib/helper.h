@@ -2,7 +2,7 @@
 
 #include "list.h"
 
-char* get_input(int year, int day);
+char* get_input(int year, int day, int optional);
 
 /* Parse a single string with columns to multiple list.
 
