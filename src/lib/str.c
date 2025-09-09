@@ -4,11 +4,15 @@
 #include <string.h>
 #include "list.h"
 
-char* str_slice(const char* str, int start, int end) {
+char* str_slice(const char *str, int start, int end) {
     int len = end - start;
     
     char *s = malloc(len + 1);
     for (int i = start, j = 0; i < end; i++, j++) {
+        if (i > strlen(str)) {
+            break;
+        }
+        
         s[j] = str[i];
     }
 
@@ -16,7 +20,7 @@ char* str_slice(const char* str, int start, int end) {
     return s;
 }
 
-t_list *str_split(const char* str, const char split_character) {
+t_list *str_split(const char *str, const char split_character) {
     t_list *splits = list_allocate(sizeof(char*));
     int start = 0;
 
@@ -47,4 +51,18 @@ t_list *str_split(const char* str, const char split_character) {
     }
 
     return splits;
+}
+
+bool str_lookahead(const char *str, int start, char *lookahead_str) {
+    bool is_match = false;
+    unsigned long lookahead_len = strlen(lookahead_str);
+    char *compare_str = str_slice(str, start, start + lookahead_len);
+
+    if (strcmp(compare_str, lookahead_str) == 0) {
+        is_match = true;
+    }
+
+    free(compare_str);
+
+    return is_match;
 }

@@ -2,5 +2,6 @@
 
 #include "list.h"
 
-char* str_slice(const char* str, int start, int end);
-t_list *str_split(const char* str, const char split_character);
+char* str_slice(const char *str, int start, int end);
+t_list *str_split(const char *str, const char split_character);
+bool str_lookahead(const char *str, int start, char *lookahead_str);

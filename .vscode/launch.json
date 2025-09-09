@@ -24,9 +24,7 @@
                 "loadAll": true,
                 "exceptionList": ""
             },
-            "sourceFileMap": {"/home/fvanmaldegem/code/github.com/fvanmaldegem": "/home/fvanmaldegem/code/personal"}
-        }
-        
+        }        
     ],
     "inputs": [
         {
